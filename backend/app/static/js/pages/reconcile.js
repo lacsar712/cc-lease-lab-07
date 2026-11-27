@@ -31,7 +31,15 @@ async function 刷新留痕() {
 
 document.getElementById('跑互证').onclick = async () => {
   const rep = await 租约台.postJSON('/api/互证/跑', {});
-  document.getElementById('互证详情').textContent = JSON.stringify(rep, null, 2);
+  const 双轨 = {
+    候审缺口数: rep.候审缺口数,
+    超限拒延缺口数: rep.超限拒延缺口数,
+    合法补偿缺口数: rep.合法补偿缺口数,
+    是否全部对齐: rep.是否全部对齐,
+    口径: '候审影子只读归档，不算合法补偿；超限拒延缺口单列差异',
+  };
+  document.getElementById('互证详情').textContent =
+    JSON.stringify(双轨, null, 2) + '\n\n' + JSON.stringify(rep, null, 2);
   await 刷新报告();
   await 刷新留痕();
 };

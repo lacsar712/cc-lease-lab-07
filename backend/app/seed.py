@@ -44,6 +44,30 @@ CREATE TABLE IF NOT EXISTS 心跳 (
   说明 TEXT NOT NULL DEFAULT '',
   FOREIGN KEY (租约号) REFERENCES 租约(租约号)
 );
+CREATE TABLE IF NOT EXISTS 心跳缺口 (
+  租约号 TEXT NOT NULL,
+  缺口序号 INTEGER NOT NULL,
+  心跳号 TEXT NOT NULL,
+  时刻 TEXT NOT NULL,
+  处置态 TEXT NOT NULL DEFAULT '缺口已记',
+  是否超限 INTEGER NOT NULL DEFAULT 0,
+  第几次拒延 INTEGER NOT NULL DEFAULT 0,
+  补偿心跳号 TEXT NOT NULL DEFAULT '',
+  补偿时 TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY (租约号, 缺口序号),
+  FOREIGN KEY (租约号) REFERENCES 租约(租约号)
+);
+CREATE TABLE IF NOT EXISTS 心跳缺口影子 (
+  影子号 INTEGER PRIMARY KEY AUTOINCREMENT,
+  租约号 TEXT NOT NULL,
+  缺口序号 INTEGER NOT NULL,
+  心跳号 TEXT NOT NULL,
+  时刻 TEXT NOT NULL,
+  处置态 TEXT NOT NULL DEFAULT '候审归档',
+  第几次拒延 INTEGER NOT NULL DEFAULT 0,
+  时刻归档 TEXT NOT NULL,
+  UNIQUE (租约号, 缺口序号)
+);
 CREATE TABLE IF NOT EXISTS 回收匣 (
   回收号 TEXT PRIMARY KEY,
   租约号 TEXT NOT NULL,
@@ -238,6 +262,10 @@ def 初始化库() -> None:
                 ),
             )
             _留痕(conn, "系统播种", 详情="初始资源池与样例租约")
+        # 连续丢包上限：允许连续丢包不超过三次，第四次必须拒延时；旧库补键不覆盖
+        conn.execute(
+            "INSERT OR IGNORE INTO 租账规(键,值) VALUES ('连续丢包上限','3')"
+        )
         conn.commit()
     finally:
         conn.close()

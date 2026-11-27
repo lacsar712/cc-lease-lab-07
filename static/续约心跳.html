@@ -14,21 +14,37 @@
     <div class="底"><button class="按钮 次" type="button" id="退出钮">退出</button></div>
   </aside>
   <main class="主区">
-    <header class="页头"><h1>续约心跳</h1><p>对生效租约发送心跳，成功则延长到期并计入续约次数。</p></header>
+    <header class="页头"><h1>续约心跳</h1><p>对生效租约发送心跳，成功则延长到期并计入续约次数；连续丢包上限写在租账规，第四次丢包拒延时并标心跳缺口。</p></header>
     <section class="卷">
       <div class="表单行">
         <div class="项"><label>租约号</label><select id="心跳租约"></select></div>
         <div class="项"><label>延长分钟</label><input id="延长分" type="number" value="30"/></div>
         <button class="按钮 琥珀" type="button" id="心跳钮">发送心跳</button>
-        <button class="按钮 次" type="button" id="失败钮">模拟失败</button>
+        <button class="按钮 次" type="button" id="失败钮">模拟失败（记缺口）</button>
+        <button class="按钮" type="button" id="补发钮">补发缺口心跳</button>
       </div>
       <p class="消息" id="心跳消息"></p>
+      <p class="说明" id="缺口概览"></p>
     </section>
     <section class="卷">
       <h2>心跳流水</h2>
       <table>
-        <thead><tr><th>心跳号</th><th>租约号</th><th>时刻</th><th>结果</th><th>延迟ms</th></tr></thead>
+        <thead><tr><th>心跳号</th><th>租约号</th><th>时刻</th><th>结果</th><th>延迟ms</th><th>说明</th></tr></thead>
         <tbody id="心跳表"></tbody>
+      </table>
+    </section>
+    <section class="卷">
+      <h2>心跳缺口（正式轨 · 放行读此表）</h2>
+      <table>
+        <thead><tr><th>租约号</th><th>缺口序号</th><th>时刻</th><th>处置态</th><th>超限</th><th>第几次拒延</th><th>补偿心跳号</th></tr></thead>
+        <tbody id="缺口表"></tbody>
+      </table>
+    </section>
+    <section class="卷">
+      <h2>候审影子（只读归档 · 放行不读）</h2>
+      <table>
+        <thead><tr><th>租约号</th><th>缺口序号</th><th>处置态</th><th>第几次拒延</th><th>归档时刻</th></tr></thead>
+        <tbody id="影子表"></tbody>
       </table>
     </section>
   </main>

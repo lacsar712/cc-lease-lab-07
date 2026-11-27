@@ -33,6 +33,23 @@ def 跑一次() -> dict:
         ).fetchall()
         if 待生效过期:
             差异.append("待生效但已过期: " + ",".join(r["租约号"] for r in 待生效过期))
+
+        # 心跳缺口双轨核对：正式轨与候审轨读引用面不同，影子不得算合法补偿
+        超限拒延行 = conn.execute(
+            "SELECT DISTINCT 租约号, 第几次拒延 FROM 心跳缺口 WHERE 处置态='超限拒延'"
+        ).fetchall()
+        if 超限拒延行:
+            差异.append(
+                "超限拒延缺口（补偿已拒·缺口已记）: "
+                + ",".join(f"{r['租约号']}(第{r['第几次拒延']}次拒延)" for r in 超限拒延行)
+            )
+        候审缺口数 = conn.execute("SELECT COUNT(*) FROM 心跳缺口影子").fetchone()[0]
+        超限拒延缺口数 = conn.execute(
+            "SELECT COUNT(*) FROM 心跳缺口 WHERE 处置态='超限拒延'"
+        ).fetchone()[0]
+        合法补偿缺口数 = conn.execute(
+            "SELECT COUNT(*) FROM 心跳缺口 WHERE 处置态='已补偿'"
+        ).fetchone()[0]
         对齐 = len(差异) == 0
         结论 = "租账互证通过" if 对齐 else "租账互证发现差异"
         摘要 = "；".join(差异) if 差异 else "资源池占用与租约台账一致"
@@ -59,6 +76,9 @@ def 跑一次() -> dict:
             "待回收数": 待回收,
             "池已占合计": 池已占合计,
             "按租约计占用": 占用按租约,
+            "候审缺口数": int(候审缺口数),
+            "超限拒延缺口数": int(超限拒延缺口数),
+            "合法补偿缺口数": int(合法补偿缺口数),
         }
         return 明细
     finally:

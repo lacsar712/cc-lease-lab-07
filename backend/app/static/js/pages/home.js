@@ -24,7 +24,14 @@
   }
   document.getElementById('互证钮').onclick = async () => {
     const rep = await 租约台.postJSON('/api/互证/跑', {});
-    document.getElementById('互证出').textContent = JSON.stringify(rep, null, 2);
+    const 双轨 = {
+      候审缺口数: rep.候审缺口数,
+      超限拒延缺口数: rep.超限拒延缺口数,
+      合法补偿缺口数: rep.合法补偿缺口数,
+      是否全部对齐: rep.是否全部对齐,
+    };
+    document.getElementById('互证出').textContent =
+      JSON.stringify(双轨, null, 2) + '\n\n' + JSON.stringify(rep, null, 2);
     await 租约台.刷新概览指标('指标');
   };
 })();

@@ -173,6 +173,22 @@ def create_app() -> FastAPI:
         ids = body.get("租约号列表") or []
         return 续约.批量心跳([str(x) for x in ids])
 
+    @app.post("/api/心跳/补发")
+    async def api_缺口补发(request: Request):
+        body = await request.json()
+        try:
+            return 续约.补发缺口(body)
+        except ValueError as e:
+            return JSONResponse({"错误": str(e)}, status_code=400)
+
+    @app.get("/api/缺口")
+    def api_缺口(租约号: str | None = None):
+        return 说明.缺口列表(租约号)
+
+    @app.get("/api/缺口/影子")
+    def api_缺口影子(租约号: str | None = None):
+        return 说明.影子列表(租约号)
+
     @app.get("/api/回收")
     def api_回收():
         return 说明.回收列表()

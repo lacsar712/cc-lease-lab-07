@@ -15,6 +15,9 @@
   </aside>
   <main class="主区">
     <header class="页头"><h1>租账规</h1><p>默认租期、心跳宽限与回收策略，影响申领与扫描逻辑。</p></header>
+    <section class="卷">
+      <p class="说明">连续丢包上限：续约心跳允许连续丢包不超过该次数（默认 3）。第一至第三次缺口可补发延时；第四次丢包一律拒延时并标心跳缺口，候审影子只归档、不算合法补偿。只数心跳缺口次数，不涉时钟秒差。</p>
+    </section>
     <section class="卷" id="规表单"></section>
     <button class="按钮 琥珀" type="button" id="保存规">保存规约</button>
     <p class="消息" id="规消息"></p>

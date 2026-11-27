@@ -43,6 +43,9 @@ def 概览() -> dict:
             "生效中": c("SELECT COUNT(*) FROM 租约 WHERE 状态 IN ('生效中','已续约')"),
             "已回收": c("SELECT COUNT(*) FROM 租约 WHERE 状态='已回收'"),
             "心跳条数": c("SELECT COUNT(*) FROM 心跳"),
+            "缺口已记数": c("SELECT COUNT(*) FROM 心跳缺口 WHERE 处置态='缺口已记'"),
+            "超限拒延缺口数": c("SELECT COUNT(*) FROM 心跳缺口 WHERE 处置态='超限拒延'"),
+            "候审影子数": c("SELECT COUNT(*) FROM 心跳缺口影子"),
             "回收匣待处置": c("SELECT COUNT(*) FROM 回收匣 WHERE 状态='待回收'"),
             "互证报告数": c("SELECT COUNT(*) FROM 互证报告"),
             "租账规": 租账规(),
@@ -127,5 +130,41 @@ def 留痕列表() -> list:
             dict(r)
             for r in conn.execute("SELECT * FROM 操作留痕 ORDER BY 编号 DESC LIMIT 80").fetchall()
         ]
+    finally:
+        conn.close()
+
+
+def 缺口列表(租约号: str | None = None) -> list:
+    """正式轨（放行轨）快照：心跳缺口处置流水。"""
+    conn = 连接()
+    try:
+        if 租约号:
+            rows = conn.execute(
+                "SELECT * FROM 心跳缺口 WHERE 租约号=? ORDER BY 缺口序号",
+                (租约号,),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM 心跳缺口 ORDER BY 租约号, 缺口序号"
+            ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def 影子列表(租约号: str | None = None) -> list:
+    """候审轨只读归档：放行判定不读本表，仅供互证核对。"""
+    conn = 连接()
+    try:
+        if 租约号:
+            rows = conn.execute(
+                "SELECT * FROM 心跳缺口影子 WHERE 租约号=? ORDER BY 缺口序号",
+                (租约号,),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM 心跳缺口影子 ORDER BY 租约号, 缺口序号"
+            ).fetchall()
+        return [dict(r) for r in rows]
     finally:
         conn.close()

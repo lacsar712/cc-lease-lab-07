@@ -46,7 +46,7 @@ const 租约台 = {
     const box = document.getElementById(containerId);
     if (!box) return;
     box.innerHTML = '';
-    const keys = ['资源池数', '启用池', '租约总数', '生效中', '待生效', '回收匣待处置', '心跳条数'];
+    const keys = ['资源池数', '启用池', '租约总数', '生效中', '待生效', '心跳条数', '缺口已记数', '超限拒延缺口数', '候审影子数', '回收匣待处置'];
     for (const k of keys) {
       if (o[k] == null) continue;
       const d = document.createElement('div');
